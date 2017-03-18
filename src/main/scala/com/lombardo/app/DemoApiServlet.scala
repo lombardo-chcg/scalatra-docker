@@ -7,6 +7,7 @@ import org.scalatra.json._
 class DemoApiServlet extends DemoapiStack with JacksonJsonSupport {
 
   protected implicit val jsonFormats: Formats = DefaultFormats
+  case class Greeting(language: String, content: String)
 
   before() {
     contentType = formats("json")
@@ -16,4 +17,14 @@ class DemoApiServlet extends DemoapiStack with JacksonJsonSupport {
     ("message" -> "hello world")
   }
 
+  get("/greetings") {
+    val greetings = List(
+      Greeting("English", "Hello World"),
+      Greeting("Spanish", "Hola Mundo"),
+      Greeting("French", "Bonjour le monde"),
+      Greeting("Italian", "Ciao mondo")
+    )
+
+    greetings
+  }
 }
