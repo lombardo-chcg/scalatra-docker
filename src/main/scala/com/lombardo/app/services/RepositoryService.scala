@@ -14,19 +14,18 @@ class RepositoryService {
   val postgresUsername = "postgres"
   val postgresPassword = "postgres"
 
-  def findAll(resource: String, columns: List[String]) : List[Map[String, String]] = {
+  def findAll(resource: String) : List[Map[String, String]] = {
     try {
-
       Class.forName("org.postgresql.Driver")
       val pgConnection = DriverManager.getConnection(postgresUri, postgresUsername, postgresPassword)
 
       logger.info("PG connection established")
 
+      val dbMetaData = pgConnection.getMetaData
+      val columns = getColumnNames(dbMetaData, resource)
+
       val sql = "select * from " + resource
       val resultSet = pgConnection.createStatement.executeQuery(sql)
-
-      logger.info("Reset set retrieved")
-
       val output = List.newBuilder[Map[String, String]]
 
       while (resultSet.next) {
@@ -51,5 +50,50 @@ class RepositoryService {
         logger.error(errorText)
         List()
     }
+  }
+
+  def findOne(resource: String, id: Int) : Map[String, String] = {
+    try {
+      Class.forName("org.postgresql.Driver")
+      val pgConnection = DriverManager.getConnection(postgresUri, postgresUsername, postgresPassword)
+
+      logger.info("PG connection established")
+
+      val dbMetaData = pgConnection.getMetaData
+      val columns = getColumnNames(dbMetaData, resource)
+
+      val sql = "select * from " + resource + " where id = " + id
+      val resultSet = pgConnection.createStatement.executeQuery(sql)
+      val output = Map.newBuilder[String, String]
+
+      if (resultSet.next) {
+        columns.foreach(col =>
+          output += (col -> resultSet.getString(col))
+        )
+      }
+
+      resultSet.close
+      pgConnection.close
+
+      output.result
+    } catch {
+      case e =>
+
+        val errorText = e.toString
+
+        logger.error(errorText)
+        Map()
+    }
+  }
+
+  private def getColumnNames(metaData: DatabaseMetaData, tableName: String): List[String] = {
+    val cols = metaData.getColumns(null, null, tableName, null)
+    val columnNames = List.newBuilder[String]
+
+    while (cols.next) {
+      columnNames += cols.getString("COLUMN_NAME")
+    }
+
+    columnNames.result
   }
 }

@@ -17,9 +17,21 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
     contentType = formats("json")
   }
 
-  get("/greetings") {
+  get("/greetings/?") {
     logger.info("GET /greetings")
 
     greetingService.getAll
+  }
+
+  get ("/greetings/:id") {
+    logger.info("GET /greetings/" + params("id"))
+
+    try {
+      val id = params("id").toInt
+      greetingService.getOne(id)
+    } catch {
+        case e: NumberFormatException => response.setStatus(400)
+          "message" -> "param must be valid number"
+    }
   }
 }
