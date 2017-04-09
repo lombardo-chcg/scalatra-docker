@@ -5,8 +5,6 @@ import java.sql._
 import org.postgresql._
 import org.slf4j.LoggerFactory
 
-import scala.collection.immutable.HashMap
-
 class RepositoryService {
 
   val logger =  LoggerFactory.getLogger(getClass)
@@ -26,22 +24,16 @@ class RepositoryService {
 
       val sql = "select * from " + resource
       val resultSet = pgConnection.createStatement.executeQuery(sql)
-      val output = List.newBuilder[Map[String, String]]
+      val allRows = List.newBuilder[Map[String, String]]
 
       while (resultSet.next) {
-        val currentCol = Map.newBuilder[String, String]
-
-        columns.foreach(col =>
-          currentCol += (col -> resultSet.getString(col))
-        )
-
-        output += currentCol.result
+         allRows += getRow(resultSet, columns)
       }
 
       resultSet.close
       pgConnection.close
 
-      output.result
+      allRows.result
     } catch {
       case e =>
 
@@ -66,16 +58,14 @@ class RepositoryService {
       val resultSet = pgConnection.createStatement.executeQuery(sql)
       val output = Map.newBuilder[String, String]
 
-      if (resultSet.next) {
-        columns.foreach(col =>
-          output += (col -> resultSet.getString(col))
-        )
-      }
+      resultSet.next
+
+      val row = getRow(resultSet, columns)
 
       resultSet.close
       pgConnection.close
 
-      output.result
+      row
     } catch {
       case e =>
 
@@ -95,5 +85,15 @@ class RepositoryService {
     }
 
     columnNames.result
+  }
+
+  private def getRow(resultSet: ResultSet, columns: List[String]): Map[String, String] = {
+    val row = Map.newBuilder[String, String]
+
+    columns.foreach(col =>
+      row += (col -> resultSet.getString(col))
+    )
+
+    row.result
   }
 }
