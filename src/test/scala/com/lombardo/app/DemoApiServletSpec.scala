@@ -1,6 +1,7 @@
 package com.lombardo.app
 
 import org.scalatra.test.specs2._
+import com.lombardo.app.resources._
 
 // For more on Specs2, see http://etorreborre.github.com/specs2/guide/org.specs2.guide.QuickStart.html
 class DemoApiServletSpec extends ScalatraSpec { def is =
@@ -8,7 +9,7 @@ class DemoApiServletSpec extends ScalatraSpec { def is =
     "should return status 200"                  ! root200^
                                                 end
 
-  addServlet(classOf[DemoApiServlet], "/*")
+  addServlet(classOf[GreetingServlet], "/*")
 
   def root200 = get("/") {
     status must_== 200
