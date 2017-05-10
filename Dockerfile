@@ -4,6 +4,7 @@ ADD ./target/scala-2.12/demo-api-assembly-0.1.0-SNAPSHOT.jar /usr/local/bin/demo
 ADD /scripts/init.sh /usr/local/bin/init.sh
 
 RUN chmod a+x /usr/local/bin/init.sh
+#RUN apt-get update && apt-get install -y postgresql-client
 
 EXPOSE 8080
 

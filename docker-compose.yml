@@ -2,11 +2,26 @@ version: '2.0'
 
 services:
     postgres:
-      image: postgres
+      image: 4f83498eebfb
       container_name: postgres
       ports:
         - "5431:5432"
       environment:
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
-        - POSTGRES_DB=greeting
+        - POSTGRES_DB=scrabble_helper
+    scalatra-api:
+        build: .
+        container_name: scalatra-api
+        ports:
+          - "18080:8080"
+        depends_on:
+          - postgres
+        links:
+          - postgres
+        environment:
+          POSTGRES_HOST: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: scrabble_helper

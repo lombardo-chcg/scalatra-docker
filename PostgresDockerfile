@@ -1,0 +1,9 @@
+FROM postgres
+
+ADD db/dict.csv /dict.csv
+ADD /db/create_greetings_table.sql /docker-entrypoint-initdb.d/create_greetings_table.sql
+ADD db/seed_greetings_table.sql /docker-entrypoint-initdb.d/seed_greetings_table.sql
+ADD db/create_words_table.sql /docker-entrypoint-initdb.d/create_words_table.sql
+ADD db/seed_words_table.sql /docker-entrypoint-initdb.d/seed_words_table.sql
+
+EXPOSE 5342
