@@ -1,0 +1,28 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="JettyLauncher" type="Application" factoryName="Application">
+        <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+            <pattern>
+                <option name="PATTERN" value="com.lombardo.app.*" />
+                <option name="ENABLED" value="true" />
+            </pattern>
+        </extension>
+        <option name="MAIN_CLASS_NAME" value="com.lombardo.app.JettyLauncher" />
+        <option name="VM_PARAMETERS" value="" />
+        <option name="PROGRAM_PARAMETERS" value="" />
+        <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+        <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+        <option name="ALTERNATIVE_JRE_PATH" />
+        <option name="ENABLE_SWING_INSPECTOR" value="false" />
+        <option name="ENV_VARIABLES" />
+        <option name="PASS_PARENT_ENVS" value="true" />
+        <module name="demo-api" />
+        <envs>
+            <env name="POSTGRES_HOST" value="localhost" />
+            <env name="POSTGRES_PORT" value="5431" />
+            <env name="POSTGRES_USER" value="postgres" />
+            <env name="POSTGRES_PASSWORD" value="postgres" />
+            <env name="POSTGRES_DB" value="scrabble_helper" />
+        </envs>
+        <method />
+    </configuration>
+</component>

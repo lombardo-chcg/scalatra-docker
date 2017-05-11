@@ -1,7 +1,5 @@
 package com.lombardo.app.services
 
-import java.sql.Timestamp
-
 import org.slf4j.LoggerFactory
 import com.lombardo.app.services.RepositoryService
 
@@ -13,18 +11,23 @@ class GreetingService {
   case class Greeting(id: Int, language: String, content: String, create_date: String)
 
   def getAll: List[Greeting] = {
-    val greetings = repoService
-      .findAll("greetings")
-      .map { dbResult => convertToGreeting(dbResult) }
-
-    greetings
+    repoService.findAll("greetings") match {
+      case Some(g) => g.map { g => convertToGreeting(g) }
+      case None => List()
+    }
   }
 
-  def getOne(id: Int): Greeting = {
-    val rawGreeting = repoService
-      .findOne("greetings", id)
+  def getOne(id: Int): Option[Greeting] = {
+    repoService.findOne("greetings", id) match {
+      case Some(g) => Some(convertToGreeting(g))
+      case None => None
+    }
+  }
 
-    convertToGreeting(rawGreeting)
+  def create(language: String, content: String): Option[Int] = {
+    val insertRequest = Map("language" -> language, "content" -> content)
+
+    repoService.insert("greetings", insertRequest)
   }
 
 

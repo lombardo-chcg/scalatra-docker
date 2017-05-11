@@ -1,78 +1,131 @@
 package com.lombardo.app.services
 
 import java.sql._
-
-import org.postgresql._
+import com.lombardo.app.connectors.dbConnector
 import org.slf4j.LoggerFactory
 
 class RepositoryService {
 
   val logger =  LoggerFactory.getLogger(getClass)
-  val postgresUri = "jdbc:postgresql://0.0.0.0:5431/greeting"
-  val postgresUsername = "postgres"
-  val postgresPassword = "postgres"
 
-  def findAll(resource: String) : List[Map[String, String]] = {
+  def findAll(resource: String) : Option[List[Map[String, String]]] = {
     try {
-      Class.forName("org.postgresql.Driver")
-      val pgConnection = DriverManager.getConnection(postgresUri, postgresUsername, postgresPassword)
-
-      logger.info("PG connection established")
+      val pgConnection = dbConnector.getConnection
+      val sql = "select * from " + resource
+      val allRows = List.newBuilder[Map[String, String]]
 
       val dbMetaData = pgConnection.getMetaData
       val columns = getColumnNames(dbMetaData, resource)
-
-      val sql = "select * from " + resource
       val resultSet = pgConnection.createStatement.executeQuery(sql)
-      val allRows = List.newBuilder[Map[String, String]]
 
       while (resultSet.next) {
          allRows += getRow(resultSet, columns)
       }
 
       resultSet.close
-      pgConnection.close
+      dbConnector.close(pgConnection)
 
-      allRows.result
+      Some(allRows.result)
     } catch {
       case e =>
 
         val errorText = e.toString
 
         logger.error(errorText)
-        List()
+        None
     }
   }
 
-  def findOne(resource: String, id: Int) : Map[String, String] = {
+  def findAllWithSearch(resource: String, column: String, searchTermList: List[String]) : Option[List[Map[String, String]]] = {
     try {
-      Class.forName("org.postgresql.Driver")
-      val pgConnection = DriverManager.getConnection(postgresUri, postgresUsername, postgresPassword)
-
-      logger.info("PG connection established")
+      val pgConnection = dbConnector.getConnection
+      val searchHits = List.newBuilder[Map[String, String]]
 
       val dbMetaData = pgConnection.getMetaData
       val columns = getColumnNames(dbMetaData, resource)
 
+      logger.info(s"""making ${searchTermList.length} sql requests""")
+
+      for (i <- searchTermList) {
+        val sql = s"""select * from $resource where $column='$i'"""
+        val resultSet = pgConnection.createStatement.executeQuery(sql)
+
+        while (resultSet.next) {
+          searchHits += getRow(resultSet, columns)
+        }
+
+        resultSet.close
+      }
+
+      dbConnector.close(pgConnection)
+
+      Some(searchHits.result)
+    } catch {
+      case e =>
+
+        val errorText = e.toString
+
+        logger.error("error")
+        None
+    }
+  }
+
+  def findOne(resource: String, id: Int) : Option[Map[String, String]] = {
+    try {
+      val pgConnection = dbConnector.getConnection
       val sql = "select * from " + resource + " where id = " + id
+
+      val dbMetaData = pgConnection.getMetaData
+      val columns = getColumnNames(dbMetaData, resource)
       val resultSet = pgConnection.createStatement.executeQuery(sql)
-      val output = Map.newBuilder[String, String]
 
       resultSet.next
 
       val row = getRow(resultSet, columns)
 
       resultSet.close
-      pgConnection.close
+      dbConnector.close(pgConnection)
 
-      row
+      Some(row)
     } catch {
       case e =>
 
         val errorText = e.toString
 
         logger.error(errorText)
-        Map()
+        None
+    }
+  }
+
+  def insert(resource: String, insertReq: Map[String, String]): Option[Int] = {
+    try {
+      val pgConnection = dbConnector.getConnection
+      val cols = insertReq.keys.mkString(", ")
+      val vals = insertReq.values.mkString("', '")
+      val sql = s"insert into $resource ($cols) values ('$vals')"
+
+      logger.info(sql)
+
+      val stmt = pgConnection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
+
+      stmt.executeUpdate;
+      val resultSet = stmt.getGeneratedKeys
+
+      resultSet.next
+
+      val row = resultSet.getInt("ID")
+
+      stmt.close
+      dbConnector.close(pgConnection)
+
+      Some(row)
+    } catch {
+      case e =>
+
+        val errorText = e.toString
+
+        logger.error(errorText)
+        None
     }
   }
 
