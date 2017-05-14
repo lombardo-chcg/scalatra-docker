@@ -20,22 +20,14 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
 
   get("/?:searchTerm") {
     val input = params("searchTerm").toLowerCase
-    val lastLetter = params.getOrElse("last", "").toLowerCase
+    val suffix = params.getOrElse("suffix", "").toLowerCase
+    val prefix = params.getOrElse("prefix", "").toLowerCase
+
     logger.info(s"""GET /words/$input""")
 
-    if (input.length >= 13) halt(400, "message" -> "cannot exceed 13 characters")
-    if (lastLetter.length > 1) halt(400, "message" -> "last letter filter must be one character only")
+    if (input.length >= 13) halt(400, "message" -> "search term cannot exceed 13 characters")
 
-    val result = wordService.findAll(input)
-
-    lastLetter match {
-      case "" => result
-      case _ =>
-        val filteredList = result.hits.filter(hit => lastLetter == hit.word.charAt(hit.word.length-1).toString)
-        val filteredCount = filteredList.length
-
-        new SearchResult(filteredCount, filteredList)
-    }
+    wordService.findAll(input, prefix, suffix)
   }
 
 }
