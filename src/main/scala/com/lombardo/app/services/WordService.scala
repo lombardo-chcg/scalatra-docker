@@ -7,12 +7,15 @@ class WordService {
 
   val logger =  LoggerFactory.getLogger(getClass)
   val repoService = new RepositoryService
+  val redisService = new RedisService
 
   val tableName = "words"
   val columnName = "canonical_word"
 
   def findAll(input: String, prefix: String, suffix: String): SearchResult = {
     val subSets = getWordSubsets(input)
+
+    redisService.findAllWithSearch(tableName, columnName, subSets)
 
     val rawResultSet = repoService.findAllWithSearch(tableName, columnName, subSets) match {
       case Some(results) => results.map(result => new Word(result("word"), result("points").toInt))
