@@ -1,43 +1,38 @@
 package com.lombardo.app.services
 
 import com.redis._
-
-trait RedisResult extends Product with Serializable
-case class RedisSearchResult(word: String, points: String)
-
-case class FuckingShit(content: List[List[String]]) extends RedisResult
+import serialization._
+import Parse.Implicits.parseString
+import org.slf4j.LoggerFactory
 
 class RedisService {
 
-  val redis = new RedisClient("localhost", 32771)
+  val logger =  LoggerFactory.getLogger(getClass)
+  val redis = new RedisClient("localhost", 32788)
 
   def findAllWithSearch(resource: String, column: String, searchTermList: List[String]) : Option[List[Map[String, String]]] = {
-    val searchHits = List.newBuilder[List[Option[String]]]
-    val container = List.newBuilder[Any]
-
     val output = searchTermList.map(word => {
-      val result = redis.lrange(word, 0, -1)
-//      println(result.getClass, " <=====> ", result)
+      redis.lrange(word, 0, -1)
+    })
 
-     result match {
+    val returnVal = output.flatten.flatten.map(x => {
+      x match {
+        case Some(thing) => thing
         case None => None
-        case Some(result) =>
-//          println("case Some(result)===>", result)
-          result.map(_ match {
-            case None => None
-            case Some(word) =>
-//              println(word)
-              word
-          })
       }
     })
 
+    try {
+      val resultSet = returnVal.map(x => {
+        val split = x.toString.split(",")
+        Map("word" -> split(0), "points" -> split(1))
+      })
 
-    println(output)
-    output.map(nested => {
-      println(nested.getClass, nested)
-      nested
-    })
-    None
+      Some(resultSet)
+    } catch {
+      case e =>
+        logger.error(e.getMessage)
+        None
+    }
   }
 }

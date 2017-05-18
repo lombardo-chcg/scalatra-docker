@@ -6,7 +6,7 @@ import com.lombardo.app.services.Model._
 class WordService {
 
   val logger =  LoggerFactory.getLogger(getClass)
-  val repoService = new RepositoryService
+  val postgresService = new RepositoryService
   val redisService = new RedisService
 
   val tableName = "words"
@@ -15,9 +15,7 @@ class WordService {
   def findAll(input: String, prefix: String, suffix: String): SearchResult = {
     val subSets = getWordSubsets(input)
 
-    redisService.findAllWithSearch(tableName, columnName, subSets)
-
-    val rawResultSet = repoService.findAllWithSearch(tableName, columnName, subSets) match {
+    val rawResultSet = redisService.findAllWithSearch(tableName, columnName, subSets) match {
       case Some(results) => results.map(result => new Word(result("word"), result("points").toInt))
       case None => List()
     }
