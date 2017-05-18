@@ -10,6 +10,11 @@ services:
         - POSTGRES_USER=postgres
         - POSTGRES_PASSWORD=postgres
         - POSTGRES_DB=scrabble_helper
+    redis:
+      image: lombardo/redis-scrabble-helper
+      container_name: redis
+      ports:
+        - "6379:6379"
     scrabble-helper-api:
         image: lombardo/scrabble-helper-api
         container_name: scrabble-helper-api
@@ -17,11 +22,15 @@ services:
           - "18080:8080"
         depends_on:
           - postgres
+          - redis
         links:
           - postgres
+          - redis
         environment:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: scrabble_helper
+          REDIS_HOST: redis
+          REDIS_PORT: 6379
