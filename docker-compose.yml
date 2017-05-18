@@ -16,7 +16,7 @@ services:
       ports:
         - "6379:6379"
     scrabble-helper-api:
-        build: .
+        image: lombardo/scrabble-helper-api
         container_name: scrabble-helper-api
         ports:
           - "18080:8080"

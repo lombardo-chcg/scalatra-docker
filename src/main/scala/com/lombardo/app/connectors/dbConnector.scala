@@ -25,7 +25,7 @@ object dbConnector {
     connectionPool.setPassword(postgresPassword);
     connectionPool.setMaxConnections(300);
 
-    retry(5){ testConnection }
+    retry(10){ testConnection }
   }
 
   def getConnection : Connection = {
