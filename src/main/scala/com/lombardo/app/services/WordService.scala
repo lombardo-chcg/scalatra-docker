@@ -1,5 +1,7 @@
 package com.lombardo.app.services
 
+import java.util.concurrent.TimeUnit
+
 import org.slf4j.LoggerFactory
 import com.lombardo.app.services.Model._
 
@@ -13,14 +15,14 @@ class WordService {
   val columnName = "canonical_word"
 
   def findAll(input: String, prefix: String, suffix: String): SearchResult = {
+    val t0 = System.nanoTime
+
     val subSets = getWordSubsets(input)
 
     val rawResultSet = redisService.findAllWithSearch(tableName, columnName, subSets) match {
       case Some(results) => results.map(result => new Word(result("word"), result("points").toInt))
       case None => List()
     }
-
-    logger.info(s"""${rawResultSet.length} words found""")
 
     val suffixFilteredSet = suffix match {
       case "" => rawResultSet
@@ -31,6 +33,11 @@ class WordService {
       case "" => suffixFilteredSet
       case _ => suffixFilteredSet.filter(_.word.startsWith(prefix))
     }
+
+    val t1 = System.nanoTime
+    val duration = TimeUnit.MILLISECONDS.convert((t1 - t0), TimeUnit.NANOSECONDS);
+
+    logger.info(s"""${rawResultSet.length} raw results || ${prefixFilteredSet.length} returned after filters applied || elapsed time ${duration} ms""")
 
     new SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortWith(_.points > _.points))
   }
