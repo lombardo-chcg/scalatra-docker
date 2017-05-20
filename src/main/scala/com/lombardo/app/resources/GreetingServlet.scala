@@ -5,8 +5,8 @@ import org.scalatra.json._
 import org.slf4j.LoggerFactory
 import com.lombardo.app._
 import com.lombardo.app.services.GreetingService
-
-case class Greeting(language: String, content: String)
+import com.lombardo.app.services.Model._
+import com.lombardo.app.util.Util
 
 class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
 
@@ -18,14 +18,18 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
     contentType = formats("json")
   }
 
+  notFound {
+    Util.json("resource not found")
+  }
+
   get("/?") {
-    logger.info("GET /greetings")
+    logger.info(s"""${request.getMethod} ${request.getRequestURI}""")
 
     greetingService.getAll
   }
 
   get ("/:id") {
-    logger.info("GET /greetings/" + params("id"))
+    logger.info(s"""${request.getMethod} ${request.getRequestURI}""")
 
     try {
       val id = params("id").toInt
@@ -33,20 +37,19 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
       greetingService.getOne(id) match {
         case Some(g) => g
         case None => response.setStatus(404)
-          jsonResponse(s"""greeting with id $id does not exist""")
+          Util.json(s"""greeting with id $id does not exist""")
       }
     } catch {
         case e: NumberFormatException => response.setStatus(400)
-          jsonResponse("param must be valid number")
+          Util.json("param must be valid number")
     }
   }
 
   post ("/?") {
-    logger.info("POST /greetings" + request.body)
-
+    logger.info(s"""${request.getMethod} ${request.getRequestURI} ${request.body.filter(_ >= ' ')}""")
 
     val greeting = parsedBody.extract[Greeting]
-    logger.info(greeting.toString)
+
     try {
       val json = parse(request.body)
       val language = (json \ "language").extract[String]
@@ -56,15 +59,11 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
         case Some(i) => response.setStatus(201)
           "id" -> i
         case None => response.setStatus(404)
-          jsonResponse("invalid request")
+          Util.json("invalid request")
       }
     } catch {
       case _ => response.setStatus(404)
-        jsonResponse("invalid input")
+        Util.json("invalid input")
     }
-  }
-
-  private def jsonResponse(message: String) : (String, String) = {
-    "message" -> message
   }
 }
