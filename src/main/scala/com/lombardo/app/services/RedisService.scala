@@ -16,12 +16,10 @@ class RedisService {
   def findAllWithSearch(resource: String, column: String, searchTermList: List[String]) : Option[List[Map[String, String]]] = {
     logger.info(s"""Making ${searchTermList.length} Redis requests""")
 
-    val redisResultSet = searchTermList.map(word => {
-      redis.lrange(word, 0, -1)
-    })
+    val redisResultSet = searchTermList.map(redis.lrange(_, 0, -1))
 
     val unwrappedResultSet = redisResultSet.flatten.flatten.map({
-        case Some(thing) => thing
+        case Some(result) => result
         case None => None
     })
 

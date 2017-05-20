@@ -8,6 +8,7 @@ import com.lombardo.app.connectors.dbConnector
 class ScalatraBootstrap extends LifeCycle {
   override def init(context: ServletContext) {
     dbConnector.configure
+    context.mount(new DefaultServlet, "/")
     context.mount(new GreetingServlet, "/greetings")
     context.mount(new WordServlet, "/words")
   }
