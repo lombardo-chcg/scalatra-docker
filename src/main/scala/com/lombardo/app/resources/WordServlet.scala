@@ -26,7 +26,7 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
   }
 
   get("/?:searchTerm") {
-    logger.info(s"""${request.getMethod} ${request.getRequestURI}?${request.getQueryString}""")
+    logger.info(s"""${request.getMethod} ${request.getRequestURI} ${if (request.getQueryString != null) request.getQueryString else "" }""")
 
     val input = params.getOrElse("searchTerm", "").toLowerCase
     val suffix = params.getOrElse("suffix", "").toLowerCase
