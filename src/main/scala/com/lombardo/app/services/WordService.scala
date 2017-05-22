@@ -1,24 +1,27 @@
 package com.lombardo.app.services
 
 import org.slf4j.LoggerFactory
-import com.lombardo.app.services.Model._
+import com.lombardo.app.models.Model._
 
 class WordService {
-
   val logger =  LoggerFactory.getLogger(getClass)
-  val postgresService = new RepositoryService
-  val redisService = new RedisService
-
   val tableName = "words"
   val columnName = "canonical_word"
+
+  val wordRepository = sys.env("REPOSITORY_SERVICE") match {
+    case "POSTGRES" => new RepositoryService
+    case "REDIS" => new RedisService
+    case "LOCAL" => new WordCacheService
+    case _ => new WordCacheService
+  }
 
   def findAll(input: String, prefix: String, suffix: String): SearchResult = {
     val t0 = System.currentTimeMillis
 
     val subSets = getWordSubsets(input).filter(_.matches(".*[aeiouy]+.*"))
 
-    val rawResultSet = redisService.findAllWithSearch(tableName, columnName, subSets) match {
-      case Some(results) => results.map(result => Word(result("word"), result("points").toInt))
+    val rawResultSet = wordRepository.findAllWithSearch(tableName, columnName, subSets) match {
+      case Some(results) => results.map(r => Word(r("word"), r("scrabblePoints").toInt, r("wordsWithFriendsPoints").toInt))
       case None => List()
     }
 
@@ -45,7 +48,7 @@ class WordService {
 
     logger.info(s"""${rawResultSet.length} raw results || ${prefixFilteredSet.length} returned after filters applied || elapsed time ${duration} ms""")
 
-    SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortWith(_.points > _.points))
+    SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortWith(_.wordsWithFriendsPoints > _.wordsWithFriendsPoints))
   }
 
 

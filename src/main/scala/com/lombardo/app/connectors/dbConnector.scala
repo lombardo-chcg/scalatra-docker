@@ -53,7 +53,7 @@ object dbConnector {
     try {
       func
     } catch {
-      case e =>
+      case e : Throwable =>
         if (times > 1) {
           logger.error(s"""Could not connect to Postgres.  Will attempt ${times - 1} more times""")
           Thread.sleep(5000)

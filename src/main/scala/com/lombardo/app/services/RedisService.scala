@@ -3,9 +3,10 @@ package com.lombardo.app.services
 import com.redis._
 import serialization._
 import Parse.Implicits.parseString
+import com.lombardo.app.models.hasFindAll
 import org.slf4j.LoggerFactory
 
-class RedisService {
+class RedisService extends hasFindAll {
 
   val redisHost = sys.env("REDIS_HOST")
   val redisPort = sys.env("REDIS_PORT").toInt
@@ -32,7 +33,7 @@ class RedisService {
 
       Some(resultSet)
     } catch {
-      case e =>
+      case e : Throwable =>
         logger.error(e.getMessage)
         None
     }

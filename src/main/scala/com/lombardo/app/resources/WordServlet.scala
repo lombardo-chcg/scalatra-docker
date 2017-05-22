@@ -1,7 +1,7 @@
 package com.lombardo.app.resources
 
 import com.lombardo.app.DemoapiStack
-import com.lombardo.app.services.Model.SearchResult
+import com.lombardo.app.models.Model.SearchResult
 import com.lombardo.app.services.WordService
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.HaltException
@@ -22,7 +22,7 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
   get("/?") {
     logger.info(s"""${request.getMethod} ${request.getRequestURI}""")
 
-    Util.json("scrabble helper!  sample resource usage: GET /words/some*hing?prefix=mo&suffix=h")
+    Util.json("scrabble helper!  sample resource usage: GET /words/some*hing?prefix=mo&suffix=h*")
   }
 
   get("/?:searchTerm") {
