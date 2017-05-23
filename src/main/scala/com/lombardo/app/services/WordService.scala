@@ -15,7 +15,7 @@ class WordService {
     case _ => new WordCacheService
   }
 
-  def findAll(input: String, prefix: String, suffix: String): SearchResult = {
+  def findAll(input: String, prefix: String, suffix: String, sortBy: String): SearchResult = {
     val t0 = System.currentTimeMillis
 
     val subSets = getWordSubsets(input).filter(_.matches(".*[aeiouy]+.*"))
@@ -48,7 +48,13 @@ class WordService {
 
     logger.info(s"""${rawResultSet.length} raw results || ${prefixFilteredSet.length} returned after filters applied || elapsed time ${duration} ms""")
 
-    SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortWith(_.wordsWithFriendsPoints > _.wordsWithFriendsPoints))
+    sortBy match {
+      case "wordswithfriendspoints" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints))
+      case "scrabblepoints" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.scrabblePoints))
+      case "alpha" | "alphabetical" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(_.word))
+      case "length" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.word.length))
+      case _ => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints))
+    }
   }
 
 

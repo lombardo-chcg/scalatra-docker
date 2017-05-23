@@ -31,12 +31,13 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
     val input = params.getOrElse("searchTerm", "").toLowerCase
     val suffix = params.getOrElse("suffix", "").toLowerCase
     val prefix = params.getOrElse("prefix", "").toLowerCase
+    val sortBy = params.getOrElse("sortBy", "").toLowerCase
 
     if (!input.matches("""[a-zA-Z*]+""")) halt(400, Util.json("invalid input.  only letters and wildcard(*) are allowed"))
     if (input.length >= 15)               halt(400, Util.json("search term cannot exceed 15 characters"))
     if (input.count(_ == '*') > 2)        halt(400, Util.json("only two wildcards are allowed"))
 
-    wordService.findAll(input, prefix, suffix)
+    wordService.findAll(input, prefix, suffix, sortBy)
   }
 
 }
