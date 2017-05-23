@@ -2,6 +2,9 @@
 
 ## RUN Intellij Mode ##
 
+```
+./scripts/launch-dependencies.sh
+```
 Import `JettyLauncher.xml` as an IntelliJ Run Configuration
 
 Access via `http://localhost:8080/words/docker` 
@@ -16,7 +19,7 @@ Access via `http://<YOUR_DOCKERHOST>:18080/words/docker`
 ## RUN SBT Mode ##
 
 ```sh
-$ source /scripts/launch-postgres.sh
+$ source ./scripts/launch-dependencies.sh
 $ sbt
 > jetty:start
 ```

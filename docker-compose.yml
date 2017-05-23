@@ -16,7 +16,7 @@ services:
       ports:
         - "6379:6379"
     scrabble-helper-api:
-        image: lombardo/scrabble-helper-api
+        image: lombardo/scrabble-helper-api:latest
         container_name: scrabble-helper-api
         ports:
           - "18080:8080"
@@ -34,3 +34,4 @@ services:
           POSTGRES_DB: scrabble_helper
           REDIS_HOST: redis
           REDIS_PORT: 6379
+          REPOSITORY_SERVICE: LOCAL 

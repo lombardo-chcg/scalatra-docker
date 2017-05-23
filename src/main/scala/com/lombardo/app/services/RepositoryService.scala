@@ -1,10 +1,12 @@
 package com.lombardo.app.services
 
 import java.sql._
+
 import com.lombardo.app.connectors.dbConnector
+import com.lombardo.app.models.hasFindAll
 import org.slf4j.LoggerFactory
 
-class RepositoryService {
+class RepositoryService extends hasFindAll {
 
   val logger =  LoggerFactory.getLogger(getClass)
 
@@ -27,7 +29,7 @@ class RepositoryService {
 
       Some(allRows.result)
     } catch {
-      case e =>
+      case e : Throwable =>
 
         val errorText = e.toString
 
@@ -61,7 +63,7 @@ class RepositoryService {
 
       Some(searchHits.result)
     } catch {
-      case e =>
+      case e : Throwable =>
 
         val errorText = e.toString
 
@@ -88,7 +90,7 @@ class RepositoryService {
 
       Some(row)
     } catch {
-      case e =>
+      case e : Throwable =>
 
         val errorText = e.toString
 
@@ -120,7 +122,7 @@ class RepositoryService {
 
       Some(row)
     } catch {
-      case e =>
+      case e : Throwable =>
 
         val errorText = e.toString
 

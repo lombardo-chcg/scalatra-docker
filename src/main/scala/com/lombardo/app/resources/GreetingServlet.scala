@@ -5,7 +5,7 @@ import org.scalatra.json._
 import org.slf4j.LoggerFactory
 import com.lombardo.app._
 import com.lombardo.app.services.GreetingService
-import com.lombardo.app.services.Model._
+import com.lombardo.app.models.Model._
 import com.lombardo.app.util.Util
 
 class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
@@ -40,7 +40,7 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
           Util.json(s"""greeting with id $id does not exist""")
       }
     } catch {
-        case e: NumberFormatException => response.setStatus(400)
+        case e : Throwable => response.setStatus(400)
           Util.json("param must be valid number")
     }
   }
@@ -62,7 +62,7 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
           Util.json("invalid request")
       }
     } catch {
-      case _ => response.setStatus(404)
+      case e : Throwable => response.setStatus(404)
         Util.json("invalid input")
     }
   }

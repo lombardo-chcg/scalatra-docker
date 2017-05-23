@@ -22,6 +22,8 @@
             <env name="POSTGRES_USER" value="postgres" />
             <env name="POSTGRES_PASSWORD" value="postgres" />
             <env name="POSTGRES_DB" value="scrabble_helper" />
+            <env name="REDIS_HOST" value="localhost" />
+            <env name="REDIS_PORT" value="6379" />
         </envs>
         <method />
     </configuration>
