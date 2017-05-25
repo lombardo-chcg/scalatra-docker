@@ -28,7 +28,7 @@ class RedisService extends hasFindAll {
       val resultSet = unwrappedResultSet.map(x => {
         val split = x.toString.split(",")
 
-        Map("word" -> split(0), "points" -> split(1))
+        Map("word" -> split(0), "wordsWithFriendsPoints" -> split(1), "scrabblePoints" -> split(2))
       })
 
       Some(resultSet)
