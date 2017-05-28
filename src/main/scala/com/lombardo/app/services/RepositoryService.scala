@@ -146,9 +146,15 @@ class RepositoryService extends hasFindAll {
     val row = Map.newBuilder[String, String]
 
     columns.foreach(col =>
-      row += (col -> resultSet.getString(col))
+      row += (convertSnakeToCamelCase(col) -> resultSet.getString(col))
     )
 
     row.result
+  }
+
+  private def convertSnakeToCamelCase(input: String) : String = {
+    val snake_matcher = "_\\w".r
+
+    snake_matcher.replaceAllIn(input, m => m.toString.split("")(1).toUpperCase)
   }
 }

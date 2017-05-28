@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory
 import com.lombardo.app._
 import com.lombardo.app.services.GreetingService
 import com.lombardo.app.models.Model._
-import com.lombardo.app.util.Util
+import com.lombardo.app.utils.ApiUtils
 
 class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
 
@@ -19,7 +19,7 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
   }
 
   notFound {
-    Util.json("resource not found")
+    ApiUtils.json("resource not found")
   }
 
   get("/?") {
@@ -37,11 +37,11 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
       greetingService.getOne(id) match {
         case Some(g) => g
         case None => response.setStatus(404)
-          Util.json(s"""greeting with id $id does not exist""")
+          ApiUtils.json(s"""greeting with id $id does not exist""")
       }
     } catch {
         case e : Throwable => response.setStatus(400)
-          Util.json("param must be valid number")
+          ApiUtils.json("param must be valid number")
     }
   }
 
@@ -59,11 +59,11 @@ class GreetingServlet extends DemoapiStack with JacksonJsonSupport {
         case Some(i) => response.setStatus(201)
           "id" -> i
         case None => response.setStatus(404)
-          Util.json("invalid request")
+          ApiUtils.json("invalid request")
       }
     } catch {
       case e : Throwable => response.setStatus(404)
-        Util.json("invalid input")
+        ApiUtils.json("invalid input")
     }
   }
 }

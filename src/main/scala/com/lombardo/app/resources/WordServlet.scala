@@ -7,7 +7,7 @@ import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.HaltException
 import org.scalatra.json.JacksonJsonSupport
 import org.slf4j.LoggerFactory
-import com.lombardo.app.util.Util
+import com.lombardo.app.utils.ApiUtils
 
 class WordServlet extends DemoapiStack with JacksonJsonSupport {
 
@@ -22,7 +22,7 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
   get("/?") {
     logger.info(s"""${request.getMethod} ${request.getRequestURI}""")
 
-    Util.json("scrabble helper!  sample resource usage: GET /words/some*hing?prefix=mo&suffix=h*")
+    ApiUtils.json("scrabble helper!  sample resource usage: GET /words/some*hing?prefix=mo&suffix=h*")
   }
 
   get("/?:searchTerm") {
@@ -33,9 +33,9 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
     val prefix = params.getOrElse("prefix", "").toLowerCase
     val sortBy = params.getOrElse("sortBy", "").toLowerCase
 
-    if (!input.matches("""[a-zA-Z*]+""")) halt(400, Util.json("invalid input.  only letters and wildcard(*) are allowed"))
-    if (input.length >= 15)               halt(400, Util.json("search term cannot exceed 15 characters"))
-    if (input.count(_ == '*') > 2)        halt(400, Util.json("only two wildcards are allowed"))
+    if (!input.matches("""[a-zA-Z*]+""")) halt(400, ApiUtils.json("invalid input.  only letters and wildcard(*) are allowed"))
+    if (input.length >= 15)               halt(400, ApiUtils.json("search term cannot exceed 15 characters"))
+    if (input.count(_ == '*') > 2)        halt(400, ApiUtils.json("only two wildcards are allowed"))
 
     wordService.findAll(input, prefix, suffix, sortBy)
   }

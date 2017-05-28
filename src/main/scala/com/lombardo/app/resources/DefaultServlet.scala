@@ -1,7 +1,7 @@
 package com.lombardo.app.resources
 
 import com.lombardo.app.DemoapiStack
-import com.lombardo.app.util.Util
+import com.lombardo.app.utils.ApiUtils
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.json.JacksonJsonSupport
 import org.slf4j.LoggerFactory
@@ -15,7 +15,7 @@ class DefaultServlet extends DemoapiStack with JacksonJsonSupport {
     logger.info(s"""${request.getMethod} ${request.getRequestURI}""")
 
     response.setStatus(404)
-    Util.json("resource not found.  available resources: /words")
+    ApiUtils.jsonString("resource not found.  available resources: /words")
   }
 
 
