@@ -99,7 +99,7 @@ class RepositoryService extends hasFindAll {
     }
   }
 
-  def insert(resource: String, insertReq: Map[String, String]): Option[Int] = {
+  def insert(resource: String, insertReq: Map[String, Any]): Option[Int] = {
     try {
       val pgConnection = dbConnector.getConnection
       val cols = insertReq.keys.mkString(", ")

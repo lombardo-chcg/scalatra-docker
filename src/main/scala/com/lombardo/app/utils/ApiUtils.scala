@@ -25,4 +25,14 @@ object ApiUtils {
 
     result
   }
+
+  implicit class ProductMapper(val obj: Product) {
+
+    def toMap = {
+      val keys = obj.getClass.getDeclaredFields.map(_.getName).toList
+      val values = obj.productIterator.toList
+
+      keys.zip(values).toMap
+    }
+  }
 }
