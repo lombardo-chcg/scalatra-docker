@@ -1,7 +1,7 @@
 package com.lombardo.app.resources
 
 import com.lombardo.app.DemoapiStack
-import com.lombardo.app.models.Model.{SearchResult, ServerLog}
+import com.lombardo.app.models.Model.{SearchResult, ServerEvent}
 import com.lombardo.app.services.{LoggerService, WordService}
 import org.json4s.{DefaultFormats, Formats}
 import org.scalatra.HaltException
@@ -30,8 +30,9 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
 
   get("/?:searchTerm") {
     val startTime = System.currentTimeMillis
+    val requestURI = s"""${request.getRequestURI} ${if (request.getQueryString != null) request.getQueryString else "" }"""
 
-    logger.info(s"""${request.getMethod} ${request.getRequestURI} ${if (request.getQueryString != null) request.getQueryString else "" }""")
+    logger.info(s"""${request.getMethod} $requestURI""")
 
     val input = params.getOrElse("searchTerm", "").toLowerCase
     val suffix = params.getOrElse("suffix", "").toLowerCase
@@ -42,10 +43,12 @@ class WordServlet extends DemoapiStack with JacksonJsonSupport {
     if (input.length >= 15)               halt(400, ApiUtils.json("search term cannot exceed 15 characters"))
     if (input.count(_ == '*') > 2)        halt(400, ApiUtils.json("only two wildcards are allowed"))
 
-    val logObject = new ServerLog(Calendar.getInstance.getTime.toString, request.getRequestURI, request.getHeader("User-Agent"), 0, System.currentTimeMillis() - startTime)
-    serverLogger.log(logObject)
+    val result = wordService.findAll(input, prefix, suffix, sortBy)
 
-    wordService.findAll(input, prefix, suffix, sortBy)
+    val log = ServerEvent(System.currentTimeMillis.toString, requestURI, request.getHeader("User-Agent"), result.count, System.currentTimeMillis - startTime)
+    serverLogger.logEvent(log)
+
+    result
   }
 
 }

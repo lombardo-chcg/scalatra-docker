@@ -1,23 +1,17 @@
 package com.lombardo.app.services
 
-import com.lombardo.app.models.Model.ServerLog
+import com.lombardo.app.models.Model.ServerEvent
+import com.lombardo.app.utils.ApiUtils._
 
 trait logger {
-  def log(log: ServerLog): Option[Int]
+  def logEvent(log: ServerEvent): Option[Int]
 }
 
 class LoggerService extends logger {
   val repoService = new RepositoryService
 
-  def log(log: ServerLog): Option[Int] = {
+  def logEvent(event: ServerEvent): Option[Int] = {
 
-    repoService.insert("logs", caseClassToMap(log))
-  }
-
-  private def caseClassToMap(obj: Product): Map[String, Any] = {
-    val keys = obj.getClass.getDeclaredFields.map(_.getName).toList
-    val values = obj.productIterator.toList
-
-    keys.zip(values).toMap
+    repoService.insert("logs", event.toMap)
   }
 }

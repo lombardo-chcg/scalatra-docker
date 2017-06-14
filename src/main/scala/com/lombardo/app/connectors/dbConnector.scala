@@ -55,6 +55,7 @@ object dbConnector {
     } catch {
       case e : Throwable =>
         if (times > 1) {
+          logger.error(s"""Postgres Connection Error: ${e.getMessage}""")
           logger.error(s"""Could not connect to Postgres.  Will attempt ${times - 1} more times""")
           Thread.sleep(5000)
           retry(times - 1 )(func)
