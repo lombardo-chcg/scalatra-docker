@@ -2,6 +2,7 @@ package com.lombardo.app.services
 
 import org.slf4j.LoggerFactory
 import com.lombardo.app.models.Model._
+import com.lombardo.app.utils.ApiUtils
 
 class WordService {
   val logger =  LoggerFactory.getLogger(getClass)
@@ -16,14 +17,17 @@ class WordService {
   }
 
   def findAll(input: String, prefix: String, suffix: String, sortBy: String): SearchResult = {
-    val t0 = System.currentTimeMillis
 
-    val subSets = getWordSubsets(input).filter(_.matches(".*[aeiouy]+.*"))
+    val subSets = ApiUtils.opTimer("getWordSubsets", {
+      getWordSubsets(input).filter(_.matches(".*[aeiouy]+.*"))
+    })
 
-    val rawResultSet = wordRepository.findAllWithSearch(tableName, columnName, subSets) match {
-      case Some(results) => results.map(r => Word(r("word"), r("scrabblePoints").toInt, r("wordsWithFriendsPoints").toInt))
-      case None => List()
-    }
+    val rawResultSet = ApiUtils.opTimer("wordRepository.findAllWithSearch", {
+      wordRepository.findAllWithSearch(tableName, columnName, subSets) match {
+        case Some(results) => results.map(r => Word(r("word"), r("scrabblePoints").toInt, r("wordsWithFriendsPoints").toInt))
+        case None => List()
+      }
+    })
 
     val suffixFilteredSet = suffix match {
       case "" => rawResultSet
@@ -43,20 +47,18 @@ class WordService {
         suffixFilteredSet.filter(_.word.matches(matcher))
     }
 
-    val t1 = System.currentTimeMillis
-    val duration = t1 - t0
+    logger.info(s"""${rawResultSet.length} raw results || ${prefixFilteredSet.length} returned after filters applied""")
 
-    logger.info(s"""${rawResultSet.length} raw results || ${prefixFilteredSet.length} returned after filters applied || elapsed time ${duration} ms""")
-
-    sortBy match {
-      case "wordswithfriendspoints" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints))
-      case "scrabblepoints" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.scrabblePoints))
-      case "alpha" | "alphabetical" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(_.word))
-      case "length" => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.word.length))
-      case _ => SearchResult(prefixFilteredSet.length, prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints))
+    val resultSet = sortBy match {
+      case "wordswithfriendspoints" => prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints)
+      case "scrabblepoints" => prefixFilteredSet.sortBy(- _.scrabblePoints)
+      case "alpha" | "alphabetical" => prefixFilteredSet.sortBy(_.word)
+      case "length" => prefixFilteredSet.sortBy(- _.word.length)
+      case _ => prefixFilteredSet.sortBy(- _.wordsWithFriendsPoints)
     }
-  }
 
+    SearchResult(resultSet.length, resultSet)
+  }
 
   private def getWordSubsets(word: String): List[String] = {
     val charList = word.split("").toList
@@ -65,16 +67,16 @@ class WordService {
       case true =>
         val cleanWord = word.replaceFirst("[*]", "")
         val wildCardSet = (97 to 122)
-          .flatMap(i => { getWordSubsets(cleanWord + i.toChar.toString) })
-          .toSet
-          .toList
+            .flatMap(i => { getWordSubsets(cleanWord + i.toChar.toString) })
+            .toSet
+            .toList
 
         wildCardSet
       case false =>
         val combinations = (1 to charList.length)
-          .flatMap(charList.combinations)
-          .map(_.sorted.mkString)
-          .toList
+            .flatMap(charList.combinations)
+            .map(_.sorted.mkString)
+            .toList
 
         combinations
     }

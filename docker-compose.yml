@@ -2,7 +2,7 @@ version: '2.0'
 
 services:
     postgres:
-      image: lombardo/postgres-scrabble-helper
+      image: lombardo/postgres-scrabble-helper:1.1
       container_name: postgres
       ports:
         - "5431:5432"
@@ -16,7 +16,7 @@ services:
       ports:
         - "6379:6379"
     scrabble-helper-api:
-        image: lombardo/scrabble-helper-api:latest
+        image: lombardo/scrabble-helper-api:0.1
         container_name: scrabble-helper-api
         ports:
           - "18080:8080"

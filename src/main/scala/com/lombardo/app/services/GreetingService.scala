@@ -32,7 +32,7 @@ class GreetingService {
 
 
   private def convertToGreeting(dbResult: Map[String, String]): Greeting = {
-    val greeting = Greeting(dbResult("id").toInt, dbResult("language"), dbResult("content"), dbResult("create_date"))
+    val greeting = Greeting(dbResult("id").toInt, dbResult("language"), dbResult("content"), dbResult("createDate"))
 
     greeting
   }

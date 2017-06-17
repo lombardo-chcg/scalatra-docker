@@ -16,5 +16,5 @@ export POSTGRES_DB=scrabble_helper
 export REDIS_HOST=$DOCKER_IP
 export REDIS_PORT=6379
 
-docker-compose down
+docker-compose down >/dev/null 2>&1
 docker-compose up -d postgres redis
