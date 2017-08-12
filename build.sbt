@@ -47,4 +47,6 @@ scalateTemplateConfig in Compile := {
   )
 }
 
+updateOptions := updateOptions.value.withCachedResolution(true)
+
 enablePlugins(JettyPlugin)

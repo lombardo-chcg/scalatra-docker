@@ -1,7 +1,6 @@
 package com.lombardo.app.services
 
 import org.slf4j.LoggerFactory
-import com.lombardo.app.services.RepositoryService
 
 class GreetingService {
 
